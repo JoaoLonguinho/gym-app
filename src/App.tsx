@@ -1,96 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
-import { Login } from './components/Login';
+import React, { useEffect, useState } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from './firebase';
+import { AuthScreen } from './components/AuthScreen';
 import { OnboardingForm } from './components/OnboardingForm';
-import { auth, db } from './firebase';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { Dashboard } from './components/Dashboard';
 
-function App() {
-  /** Currently authenticated Firebase user */
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  
-  /** Indicates whether initial auth and user status checks are pending */
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-  /** Determines if the onboarding screen should be displayed */
-  const [requiresOnboarding, setRequiresOnboarding] = useState<boolean>(false);
-
-  /**
-   * Queries Firestore to determine if the user has completed or skipped onboarding.
-   */
-  const checkOnboardingStatus = async (userId: string) => {
-    try {
-      const userDocRef = doc(db, 'users', userId);
-      const userSnap = await getDoc(userDocRef);
-
-      if (userSnap.exists() && userSnap.data().isFormCompleted) {
-        setRequiresOnboarding(false);
-      } else {
-        setRequiresOnboarding(true);
-      }
-    } catch (error) {
-      console.error('Error fetching user onboarding status:', error);
-      setRequiresOnboarding(false);
-    }
-  };
+export const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [puluOnboarding, setPuluOnboarding] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      if (user) {
-        await checkOnboardingStatus(user.uid);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+      if (!currentUser) {
+        setPuluOnboarding(false);
       }
-      setIsLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    signOut(auth);
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="App">
-        <p style={{ color: '#fff' }}>Loading...</p>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        backgroundColor: '#0f172a',
+        color: '#ffffff',
+        fontFamily: 'sans-serif'
+      }}>
+        <p>Carregando aplicação...</p>
       </div>
     );
   }
 
-  return (
-    <div className="App">
-      {!currentUser ? (
-        <Login />
-      ) : requiresOnboarding ? (
-        <OnboardingForm 
-          userId={currentUser.uid} 
-          onComplete={() => setRequiresOnboarding(false)} 
-        />
-      ) : (
-        <div style={{ color: '#fff', textAlign: 'center' }}>
-          <h2>Welcome to Gym App! 👋</h2>
-          <p>Email: {currentUser.email}</p>
-          <button 
-            onClick={handleLogout}
-            style={{
-              padding: '0.8rem 1.5rem',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: '#f38ba8',
-              color: '#11111b',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              marginTop: '1rem'
-            }}
-          >
-            Sign Out 🚪
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
+  // 1. DESLOGADO -> Mostrar Tela de Login / Cadastro
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  // 2. LOGADO (mas ainda não pulou/completou onboarding) -> Mostrar Formulário
+  if (!puluOnboarding) {
+    return (
+      <OnboardingForm 
+        onSkip={() => setPuluOnboarding(true)} 
+        onComplete={() => setPuluOnboarding(true)} 
+      />
+    );
+  }
+
+  // 3. LOGADO E LIBERADO -> Mostrar Dashboard
+  return <Dashboard />;
+};
 
 export default App;

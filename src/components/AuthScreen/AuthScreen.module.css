@@ -4,55 +4,36 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: #0f172a; /* Tom escuro para harmonizar com o card */
+  background-color: #0f172a;
   box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .card {
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
   background-color: #1e1b2e;
   border-radius: 16px;
-  padding: 28px;
+  padding: 32px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
   color: #ffffff;
   display: flex;
   flex-direction: column;
 }
 
-.headerActions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.btnLogout {
-  background: transparent;
-  border: 1px solid #ef4444;
-  color: #ef4444;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btnLogout:hover {
-  background-color: #ef4444;
-  color: #ffffff;
-}
-
 .card h2 {
-  margin: 0 0 8px 0;
+  margin: 0 0 20px 0;
   font-size: 1.4rem;
   text-align: center;
 }
 
-.subtitle {
-  margin: 0 0 24px 0;
+.error {
+  color: #f87171;
   font-size: 0.85rem;
-  color: #a1a1aa;
+  background-color: rgba(239, 68, 68, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
   text-align: center;
 }
 
@@ -66,17 +47,14 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  text-align: left;
 }
 
 .inputGroup label {
   font-size: 0.8rem;
   color: #d4d4d8;
-  font-weight: 500;
 }
 
-.inputGroup input,
-.inputGroup select {
+.inputGroup input {
   width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
@@ -88,8 +66,7 @@
   box-sizing: border-box;
 }
 
-.inputGroup input:focus,
-.inputGroup select:focus {
+.inputGroup input:focus {
   border-color: #c084fc;
 }
 
@@ -104,24 +81,18 @@
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: opacity 0.2s ease;
 }
 
-.btnPrimary:hover {
-  opacity: 0.9;
-}
-
-.btnSecondary {
-  width: 100%;
+.btnToggle {
+  margin-top: 16px;
   background: transparent;
   border: none;
   color: #a1a1aa;
   font-size: 0.85rem;
   cursor: pointer;
   text-decoration: underline;
-  padding: 6px;
 }
 
-.btnSecondary:hover {
+.btnToggle:hover {
   color: #ffffff;
 }

@@ -1,0 +1,114 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.btnLogout {
+  padding: 8px 16px;
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btnLogout:hover {
+  background-color: #dc2626;
+}
+
+/* Card: Treino de Hoje */
+.todayWorkoutCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.todayWorkoutCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.workoutHeaderTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workoutHeaderTitle h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.workoutTag {
+  color: #2563eb;
+}
+
+.toggleHint {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.exerciseListContainer {
+  margin-top: 16px;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 16px;
+}
+
+.exerciseListTitle {
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.exerciseList {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.8;
+  color: #4b5563;
+}
+
+/* Card: Gráfico */
+.chartCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.chartCard h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.15rem;
+  color: #1f2937;
+}
+
+.chartWrapper {
+  width: 100%;
+  height: 300px;
+}
