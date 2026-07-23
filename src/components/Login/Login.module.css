@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #1e1e2e;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 360px;
+  color: #ffffff;
+}
+
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #f5c2e7;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+}
+
+.input {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #45475a;
+  background-color: #313244;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #cba6f7;
+}
+
+.button {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #cba6f7;
+  color: #11111b;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background-color: #b4befe;
+}
+
+.error {
+  color: #f38ba8;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.toggleText {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #a6adc8;
+  cursor: pointer;
+  text-decoration: underline;
+}
