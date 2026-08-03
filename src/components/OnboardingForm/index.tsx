@@ -152,7 +152,7 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
           updatedAt: new Date().toISOString()
         }, { merge: true });
       } catch (err) {
-        console.error('Erro ao pular onboarding no Firestore:', err);
+        console.error('Erro ao pular onboarding no Firestore, por gentileza contate o desenvolvedor', err);
       }
     }
     if (onSkip) onSkip();
