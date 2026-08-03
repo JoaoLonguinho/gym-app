@@ -1,25 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from './firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './firebase';
 import { AuthScreen } from './components/AuthScreen';
 import { OnboardingForm } from './components/OnboardingForm';
 import { Dashboard } from './components/Dashboard';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isFormCompleted, setIsFormCompleted] = useState<boolean>(false);
+  const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
-  const [puluOnboarding, setPuluOnboarding] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubscribeFirestore: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
-      if (!currentUser) {
-        setPuluOnboarding(false);
+
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+        unsubscribeFirestore = null;
+      }
+
+      if (currentUser) {
+        setLoading(true);
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        unsubscribeFirestore = onSnapshot(
+          userDocRef,
+          (docSnap) => {
+            if (docSnap.exists() && docSnap.data().isFormCompleted === true) {
+              setIsFormCompleted(true);
+            } else {
+              setIsFormCompleted(false);
+            }
+            setLoading(false);
+          },
+          (error) => {
+            console.error('Erro ao ler dados do usuário no Firestore:', error);
+            setLoading(false);
+          }
+        );
+      } else {
+        setIsFormCompleted(false);
+        setIsEditingOnboarding(false);
+        setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
+    };
   }, []);
 
   if (loading) {
@@ -43,18 +77,24 @@ export const App: React.FC = () => {
     return <AuthScreen />;
   }
 
-  // 2. LOGADO (mas ainda não pulou/completou onboarding) -> Mostrar Formulário
-  if (!puluOnboarding) {
+  // 2. LOGADO (mas não completou o formulário ou solicitou editar) -> Mostrar Formulário
+  if (!isFormCompleted || isEditingOnboarding) {
     return (
       <OnboardingForm 
-        onSkip={() => setPuluOnboarding(true)} 
-        onComplete={() => setPuluOnboarding(true)} 
+        onSkip={() => {
+          setIsFormCompleted(true);
+          setIsEditingOnboarding(false);
+        }} 
+        onComplete={() => {
+          setIsFormCompleted(true);
+          setIsEditingOnboarding(false);
+        }} 
       />
     );
   }
 
-  // 3. LOGADO E LIBERADO -> Mostrar Dashboard
-  return <Dashboard />;
+  // 3. LOGADO E COM FORMULÁRIO COMPLETO -> Mostrar Dashboard
+  return <Dashboard onOpenOnboarding={() => setIsEditingOnboarding(true)} />;
 };
 
 export default App;

@@ -3,7 +3,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
 import styles from './AuthScreen.module.css';
 
 export const AuthScreen: React.FC = () => {
@@ -20,7 +21,13 @@ export const AuthScreen: React.FC = () => {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          createdAt: new Date().toISOString(),
+          isFormCompleted: false
+        }, { merge: true });
       }
     } catch (err: any) {
       setError('Falha na autenticação. Verifique os dados e tente novamente.');

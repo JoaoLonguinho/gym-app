@@ -1,0 +1,231 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  background-color: #1e1b2e;
+  border-radius: 16px;
+  padding: 24px;
+  color: #ffffff;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #3f3f46;
+  padding-bottom: 12px;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.btnClose {
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.btnClose:hover {
+  color: #ffffff;
+}
+
+.badgeGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.badge {
+  display: inline-block;
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badgeReps {
+  display: inline-block;
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Tabela de Séries */
+.setsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #27272a;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #3f3f46;
+  gap: 10px;
+}
+
+.setRowDone {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.setLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #e4e4e7;
+  min-width: 65px;
+}
+
+.weightInputGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.weightInput {
+  width: 70px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #52525b;
+  background-color: #18181b;
+  color: #ffffff;
+  font-size: 0.9rem;
+  text-align: center;
+  outline: none;
+}
+
+.weightInput:focus {
+  border-color: #c084fc;
+}
+
+.unitText {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.btnSetCheck {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #3b82f6;
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnSetCheckCompleted {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+/* Cronômetro de Descanso */
+.timerCard {
+  background-color: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.timerTitle {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.timerValue {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: #f59e0b;
+}
+
+.timerValueRunning {
+  color: #10b981;
+}
+
+.timerControls {
+  display: flex;
+  gap: 8px;
+}
+
+.btnTimer {
+  padding: 4px 10px;
+  background-color: #27272a;
+  border: 1px solid #3f3f46;
+  color: #d4d4d8;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.btnTimer:hover {
+  background-color: #3f3f46;
+  color: #ffffff;
+}
+
+/* Botão de Finalizar */
+.btnFinalize {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btnFinalize:hover {
+  opacity: 0.9;
+}
