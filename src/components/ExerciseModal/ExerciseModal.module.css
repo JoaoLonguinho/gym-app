@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.75);
+  background-color: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -16,23 +16,25 @@
 .modal {
   width: 100%;
   max-width: 480px;
-  background-color: #1e1b2e;
+  background-color: var(--bg-card);
   border-radius: 16px;
   padding: 24px;
-  color: #ffffff;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  color: var(--text-primary);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 20px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 1px solid #3f3f46;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
 }
 
@@ -40,13 +42,13 @@
   margin: 0;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .btnClose {
   background: transparent;
   border: none;
-  color: #a1a1aa;
+  color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
   line-height: 1;
@@ -54,7 +56,7 @@
 }
 
 .btnClose:hover {
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .badgeGroup {
@@ -66,9 +68,9 @@
 
 .badge {
   display: inline-block;
-  background-color: rgba(168, 85, 247, 0.2);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  background-color: rgba(2, 132, 199, 0.15);
+  color: var(--accent-purple);
+  border: 1px solid var(--accent-purple);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -77,9 +79,9 @@
 
 .badgeReps {
   display: inline-block;
-  background-color: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background-color: rgba(249, 115, 22, 0.15);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -97,10 +99,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #27272a;
+  background-color: var(--bg-card-secondary);
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid #3f3f46;
+  border: 1px solid var(--border-color);
   gap: 10px;
 }
 
@@ -112,7 +114,7 @@
 .setLabel {
   font-weight: 600;
   font-size: 0.9rem;
-  color: #e4e4e7;
+  color: var(--text-primary);
   min-width: 65px;
 }
 
@@ -126,29 +128,29 @@
   width: 70px;
   padding: 6px 8px;
   border-radius: 6px;
-  border: 1px solid #52525b;
-  background-color: #18181b;
-  color: #ffffff;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   font-size: 0.9rem;
   text-align: center;
   outline: none;
 }
 
 .weightInput:focus {
-  border-color: #c084fc;
+  border-color: var(--primary-color);
 }
 
 .unitText {
   font-size: 0.8rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 .btnSetCheck {
   padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid #3b82f6;
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  border: 1px solid var(--primary-color);
+  background-color: rgba(249, 115, 22, 0.15);
+  color: var(--primary-color);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -163,8 +165,8 @@
 
 /* Cronômetro de Descanso */
 .timerCard {
-  background-color: #18181b;
-  border: 1px solid #3f3f46;
+  background-color: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 14px;
   display: flex;
@@ -175,7 +177,7 @@
 
 .timerTitle {
   font-size: 0.8rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0;
@@ -198,18 +200,20 @@
 }
 
 .btnTimer {
-  padding: 4px 10px;
-  background-color: #27272a;
-  border: 1px solid #3f3f46;
-  color: #d4d4d8;
+  padding: 6px 12px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   border-radius: 6px;
   font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btnTimer:hover {
-  background-color: #3f3f46;
-  color: #ffffff;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 /* Botão de Finalizar */
@@ -218,7 +222,7 @@
   padding: 12px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  background-color: var(--primary-color);
   color: #ffffff;
   font-weight: 700;
   font-size: 1rem;

@@ -6,6 +6,7 @@ import {
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { ThemeToggle, Theme } from '../ThemeToggle';
+import { InstallShortcutButton } from '../InstallShortcutButton';
 import styles from './AuthScreen.module.css';
 
 interface AuthScreenProps {
@@ -56,12 +57,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
   return (
     <div className={styles.wrapper}>
-      {/* Botão de Tema no Topo */}
-      {onToggleTheme && (
-        <div className={styles.topBar}>
-          <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
-        </div>
-      )}
+      {/* Botões de Ação no Topo */}
+      <div className={styles.topBar}>
+        <InstallShortcutButton />
+        {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
+      </div>
 
       <div className={styles.card}>
         <h2>{isLogin ? 'Entrar no Gym App' : 'Criar Conta'}</h2>

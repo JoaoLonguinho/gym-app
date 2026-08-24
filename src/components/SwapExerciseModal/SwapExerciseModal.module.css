@@ -1,0 +1,122 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  z-index: 2000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  color: var(--text-primary);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+}
+
+.btnClose {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.btnClose:hover {
+  color: var(--text-primary);
+}
+
+.optionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.optionCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background-color: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.optionCard:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.optionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.optionName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.optionMeta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.btnSelectOption {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btnSelectOption:hover {
+  opacity: 0.9;
+}

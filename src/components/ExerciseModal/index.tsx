@@ -142,7 +142,7 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
                   borderRadius: '4px',
                   border: 'none',
                   background: unit === 'kg' ? 'var(--primary-color)' : 'transparent',
-                  color: '#fff',
+                  color: unit === 'kg' ? '#fff' : 'var(--text-muted)',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
                   fontWeight: 600
@@ -158,7 +158,7 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
                   borderRadius: '4px',
                   border: 'none',
                   background: unit === 'lbs' ? 'var(--primary-color)' : 'transparent',
-                  color: '#fff',
+                  color: unit === 'lbs' ? '#fff' : 'var(--text-muted)',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
                   fontWeight: 600
@@ -232,8 +232,8 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
           onClick={handleFinalizeToggle}
           style={{
             background: isAllSetsDone
-              ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'
-              : 'var(--primary-gradient)',
+              ? '#ef4444'
+              : 'var(--primary-color)',
           }}
         >
           {isAllSetsDone ? 'Desmarcar Exercício como Concluído' : 'Finalizar Exercício'}

@@ -1,0 +1,42 @@
+.accentsWrapper {
+  position: absolute;
+  pointer-events: none;
+  overflow: hidden;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.svgAccent {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--graphic-accent-color);
+  opacity: 0.18; /* Opacidade reduzida para atuar como marca d'água no fundo sem afetar o texto */
+}
+
+.dotGrid {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+}
+
+.zigzag {
+  position: absolute;
+  bottom: 12px;
+  right: 20px;
+}
+
+.cube3d {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+}
+
+.chevrons {
+  position: absolute;
+  top: 14px;
+  right: 60px;
+}

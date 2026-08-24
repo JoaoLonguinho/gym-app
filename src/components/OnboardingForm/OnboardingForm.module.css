@@ -4,25 +4,32 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: #0f172a; /* Tom escuro para harmonizar com o card */
+  background-color: var(--bg-main);
   box-sizing: border-box;
 }
 
 .card {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   max-width: 440px;
-  background-color: #1e1b2e;
+  background-color: var(--bg-card);
   border-radius: 16px;
   padding: 28px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-  color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .headerActions {
+  position: relative;
+  z-index: 1;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 8px;
 }
 
@@ -44,19 +51,27 @@
 }
 
 .card h2 {
+  position: relative;
+  z-index: 1;
   margin: 0 0 8px 0;
   font-size: 1.4rem;
+  font-weight: 700;
   text-align: center;
+  color: var(--text-primary);
 }
 
 .subtitle {
+  position: relative;
+  z-index: 1;
   margin: 0 0 24px 0;
   font-size: 0.85rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
   text-align: center;
 }
 
 .form {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -71,7 +86,7 @@
 
 .inputGroup label {
   font-size: 0.8rem;
-  color: #d4d4d8;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -80,9 +95,9 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #3f3f46;
-  background-color: #27272a;
-  color: #ffffff;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card-secondary);
+  color: var(--text-primary);
   font-size: 0.9rem;
   outline: none;
   box-sizing: border-box;
@@ -90,7 +105,7 @@
 
 .inputGroup input:focus,
 .inputGroup select:focus {
-  border-color: #c084fc;
+  border-color: var(--primary-color);
 }
 
 .btnPrimary {
@@ -99,7 +114,7 @@
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(90deg, #c084fc 0%, #a855f7 100%);
+  background-color: var(--primary-color);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.95rem;
@@ -115,7 +130,7 @@
   width: 100%;
   background: transparent;
   border: none;
-  color: #a1a1aa;
+  color: var(--text-muted);
   font-size: 0.85rem;
   cursor: pointer;
   text-decoration: underline;
@@ -123,7 +138,7 @@
 }
 
 .btnSecondary:hover {
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .daysGrid {
@@ -135,10 +150,10 @@
 
 .dayChip {
   padding: 8px 4px;
-  background-color: #27272a;
-  border: 1px solid #3f3f46;
+  background-color: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: #a1a1aa;
+  color: var(--text-muted);
   font-size: 0.75rem;
   font-weight: 500;
   text-align: center;
@@ -148,8 +163,8 @@
 }
 
 .dayChipActive {
-  background-color: #a855f7;
-  border-color: #c084fc;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
   color: #ffffff;
   font-weight: 600;
 }

@@ -4,7 +4,10 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { WorkoutDay, Exercise, generateWorkoutRoutine, EstiloTreino } from '../../utils/workoutGenerator';
 import { ExerciseModal, SetRecord } from '../ExerciseModal';
+import { SwapExerciseModal } from '../SwapExerciseModal';
 import { ThemeToggle, Theme } from '../ThemeToggle';
+import { InstallShortcutButton } from '../InstallShortcutButton';
+import { GeometricAccents } from '../GeometricAccents';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import styles from './Dashboard.module.css';
 
@@ -41,6 +44,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [hasCompletedForm, setHasCompletedForm] = useState<boolean>(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [swappingExercise, setSwappingExercise] = useState<Exercise | null>(null);
   const [todayLogs, setTodayLogs] = useState<Record<string, ExerciseLog>>({});
   const [chartFilter, setChartFilter] = useState<ChartFilter>('dia');
 
@@ -169,6 +173,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return false;
   };
 
+  // Trocar exercício da rotina por outro do mesmo grupo muscular
+  const handleSwapExercise = async (oldExercise: Exercise, newExercise: Exercise) => {
+    if (!treinoAtual) return;
+
+    const updatedRotina = rotina.map((day, idx) => {
+      if (idx === diaSelecionadoIdx) {
+        const updatedExercicios = day.exercicios.map((ex) =>
+          ex.nome === oldExercise.nome || (ex.id && ex.id === oldExercise.id) ? { ...newExercise, id: ex.id || newExercise.id } : ex
+        );
+        return { ...day, exercicios: updatedExercicios };
+      }
+      return day;
+    });
+
+    setRotina(updatedRotina);
+    setSwappingExercise(null);
+
+    // Salvar nova rotina no Firestore se logado
+    const user = auth.currentUser;
+    if (user && !isGuestMode) {
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          rotinaTreino: updatedRotina,
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+      } catch (err) {
+        console.error('Erro ao atualizar exercício trocado no Firestore:', err);
+      }
+    }
+  };
+
   const handleUpdateSetsInFirestore = async (
     exerciseId: string,
     sets: SetRecord[],
@@ -267,7 +302,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <button
             onClick={onExitGuestMode}
             style={{
-              background: 'var(--primary-gradient)',
+              background: 'var(--primary-color)',
               color: '#fff',
               border: 'none',
               borderRadius: '4px',
@@ -286,6 +321,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <header className={styles.header}>
         <h2>Meu Painel de Treinos</h2>
         <div className={styles.headerRight}>
+          <InstallShortcutButton />
           {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
           <button 
             onClick={onOpenOnboarding} 
@@ -323,6 +359,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <p>Carregando sua rotina de treino...</p>
       ) : treinoAtual ? (
         <section className={styles.todayWorkoutCard}>
+          <GeometricAccents variant="card" />
           <div className={styles.workoutHeaderTitle}>
             <h3>
               {treinoAtual.diaSemana}: <span className={styles.workoutTag}>{treinoAtual.titulo}</span>
@@ -369,15 +406,35 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </div>
                     </div>
 
-                    {isDone ? (
-                      <span className={styles.statusBadgeDone}>Concluído</span>
-                    ) : doneSetsCount > 0 ? (
-                      <span className={styles.statusBadgePending} style={{ color: 'var(--primary-color)' }}>
-                        Em andamento ({doneSetsCount}/{totalSeries})
-                      </span>
-                    ) : (
-                      <span className={styles.statusBadgePending}>Iniciar</span>
-                    )}
+                    <div className={styles.exerciseActionsRight}>
+                      {isDone ? (
+                        <span className={styles.statusBadgeDone}>Concluído</span>
+                      ) : doneSetsCount > 0 ? (
+                        <span className={styles.statusBadgePending} style={{ color: 'var(--primary-color)' }}>
+                          Em andamento ({doneSetsCount}/{totalSeries})
+                        </span>
+                      ) : (
+                        <span className={styles.statusBadgePending}>Iniciar</span>
+                      )}
+
+                      {/* Botão com Ícone Vetorial de Troca de Exercício */}
+                      <button
+                        type="button"
+                        className={styles.btnSwapExercise}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSwappingExercise(ex);
+                        }}
+                        title="Substituir por outro exercício do mesmo músculo"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 2v6h-6" />
+                          <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                          <path d="M3 22v-6h6" />
+                          <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -401,8 +458,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
         />
       )}
 
+      {/* Modal de Troca de Exercício */}
+      {swappingExercise && (
+        <SwapExerciseModal
+          currentExercise={swappingExercise}
+          onClose={() => setSwappingExercise(null)}
+          onSelectAlternative={(newEx) => handleSwapExercise(swappingExercise, newEx)}
+        />
+      )}
+
       {/* Dashboard: Gráfico de Progresso com Filtros */}
       <section className={styles.chartCard}>
+        <GeometricAccents variant="chart" />
         <div className={styles.chartHeader}>
           <h3>{chartTitle}</h3>
           <div className={styles.filterButtonGroup}>

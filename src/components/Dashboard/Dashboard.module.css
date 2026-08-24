@@ -32,7 +32,7 @@
 
 .btnOnboarding {
   padding: 8px 14px;
-  background: var(--primary-gradient);
+  background-color: var(--primary-color);
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -91,7 +91,7 @@
 }
 
 .tabButtonActive {
-  background: var(--primary-gradient);
+  background-color: var(--primary-color);
   color: #ffffff;
   border-color: var(--primary-color);
   font-weight: 600;
@@ -99,6 +99,8 @@
 
 /* Card: Treino Selecionado */
 .todayWorkoutCard {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 20px;
@@ -110,6 +112,8 @@
 }
 
 .workoutHeaderTitle {
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -140,6 +144,8 @@
 }
 
 .exerciseListContainer {
+  position: relative;
+  z-index: 2;
   margin-top: 16px;
   border-top: 1px solid var(--border-color);
   padding-top: 16px;
@@ -227,6 +233,31 @@
   font-size: 0.75rem;
 }
 
+.exerciseActionsRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnSwapExercise {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btnSwapExercise:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: var(--bg-card-secondary);
+}
+
 .statusBadgePending {
   font-size: 0.85rem;
   font-weight: 600;
@@ -246,6 +277,8 @@
 
 /* Card: Gráfico com Filtros */
 .chartCard {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 20px;
@@ -255,6 +288,8 @@
 }
 
 .chartHeader {
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -297,13 +332,15 @@
 }
 
 .filterBtnActive {
-  background: var(--primary-gradient);
+  background-color: var(--primary-color);
   color: #ffffff;
   border-color: var(--primary-color);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .chartWrapper {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 260px;
 }

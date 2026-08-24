@@ -4,6 +4,8 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { generateWorkoutRoutine, EstiloTreino } from '../../utils/workoutGenerator';
 import { ThemeToggle, Theme } from '../ThemeToggle';
+import { InstallShortcutButton } from '../InstallShortcutButton';
+import { GeometricAccents } from '../GeometricAccents';
 import styles from './OnboardingForm.module.css';
 
 interface OnboardingFormProps {
@@ -261,8 +263,13 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({
   return (
     <div className={styles.wrapper}>
       <div className={styles.card}>
+        <GeometricAccents variant="card" />
+
         <div className={styles.headerActions}>
-          {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <InstallShortcutButton />
+            {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
+          </div>
           <button onClick={handleLogout} className={styles.btnLogout}>
             Sair
           </button>
