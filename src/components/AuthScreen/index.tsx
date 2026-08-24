@@ -5,9 +5,20 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
+import { ThemeToggle, Theme } from '../ThemeToggle';
 import styles from './AuthScreen.module.css';
 
-export const AuthScreen: React.FC = () => {
+interface AuthScreenProps {
+  onGuestLogin?: () => void;
+  theme?: Theme;
+  onToggleTheme?: () => void;
+}
+
+export const AuthScreen: React.FC<AuthScreenProps> = ({ 
+  onGuestLogin,
+  theme = 'dark',
+  onToggleTheme
+}) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,6 +48,13 @@ export const AuthScreen: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
+      {/* Botão de Tema no Topo */}
+      {onToggleTheme && (
+        <div className={styles.topBar}>
+          <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+        </div>
+      )}
+
       <div className={styles.card}>
         <h2>{isLogin ? 'Entrar no Gym App 🏋️' : 'Criar Conta 🚀'}</h2>
         
@@ -77,6 +95,23 @@ export const AuthScreen: React.FC = () => {
         >
           {isLogin ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Faça login'}
         </button>
+
+        {/* Opção Continuar sem conta (Modo Teste) */}
+        <div className={styles.guestSection}>
+          <div className={styles.guestButtonWrapper}>
+            <button
+              type="button"
+              className={styles.btnGuest}
+              onClick={onGuestLogin}
+            >
+              Continuar sem conta
+              <span className={styles.helpIcon}>❓</span>
+            </button>
+            <span className={styles.tooltipText}>
+              Ao utilizar o site sem conta, você estará apenas efetuando um teste, onde os dados não serão salvos, será gerado um treino de acordo com o músculo que deseja treinar.
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

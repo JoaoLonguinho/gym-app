@@ -4,11 +4,16 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { WorkoutDay, Exercise, generateWorkoutRoutine } from '../../utils/workoutGenerator';
 import { ExerciseModal, SetRecord } from '../ExerciseModal';
+import { ThemeToggle, Theme } from '../ThemeToggle';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import styles from './Dashboard.module.css';
 
 interface DashboardProps {
   onOpenOnboarding?: () => void;
+  isGuestMode?: boolean;
+  onExitGuestMode?: () => void;
+  theme?: Theme;
+  onToggleTheme?: () => void;
 }
 
 interface ExerciseLog {
@@ -19,19 +24,32 @@ interface ExerciseLog {
   updatedAt: string;
 }
 
+type ChartFilter = 'dia' | 'mes' | 'ano';
+
 const CORES = ['#10B981', '#E5E7EB'];
 
-export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
+export const Dashboard: React.FC<DashboardProps> = ({
+  onOpenOnboarding,
+  isGuestMode = false,
+  onExitGuestMode,
+  theme = 'dark',
+  onToggleTheme,
+}) => {
   const [rotina, setRotina] = useState<WorkoutDay[]>([]);
   const [diaSelecionadoIdx, setDiaSelecionadoIdx] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [hasCompletedForm, setHasCompletedForm] = useState<boolean>(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [todayLogs, setTodayLogs] = useState<Record<string, ExerciseLog>>({});
+  const [chartFilter, setChartFilter] = useState<ChartFilter>('dia');
 
   const todayDate = new Date().toISOString().split('T')[0];
 
   const handleLogout = async () => {
+    if (isGuestMode && onExitGuestMode) {
+      onExitGuestMode();
+      return;
+    }
     try {
       await signOut(auth);
     } catch (error) {
@@ -39,8 +57,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
     }
   };
 
-  // Carregar dados de rotina do usuário
+  // Carregar dados de rotina do usuário (ou modo visitante)
   useEffect(() => {
+    if (isGuestMode) {
+      const gerado = generateWorkoutRoutine(3, ['Segunda-feira', 'Quarta-feira', 'Sexta-feira'], 'Equilibrado');
+      setRotina(gerado);
+      setHasCompletedForm(false);
+      setLoading(false);
+      return;
+    }
+
     const fetchUserRoutine = async () => {
       const user = auth.currentUser;
       if (!user) {
@@ -77,10 +103,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
     };
 
     fetchUserRoutine();
-  }, []);
+  }, [isGuestMode]);
 
-  // Escutar logs do treino de hoje em tempo real do Firestore
+  // Escutar logs do treino de hoje em tempo real do Firestore (apenas se logado)
   useEffect(() => {
+    if (isGuestMode) return;
     const user = auth.currentUser;
     if (!user) return;
 
@@ -104,7 +131,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
     );
 
     return () => unsubscribe();
-  }, [todayDate]);
+  }, [todayDate, isGuestMode]);
 
   // Selecionar o dia de hoje por padrão
   useEffect(() => {
@@ -120,13 +147,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
 
   const treinoAtual = rotina[diaSelecionadoIdx] || rotina[0];
 
-  // Auxiliar para recuperar o log de um exercício de forma flexível por ID ou Nome
   const getLogForExercise = (ex: Exercise): ExerciseLog | undefined => {
     if (!ex) return undefined;
     return (ex.id ? todayLogs[ex.id] : undefined) || todayLogs[ex.nome];
   };
 
-  // Verificar se o exercício está concluído
   const isExerciseDone = (ex: Exercise): boolean => {
     const log = getLogForExercise(ex);
     if (!log) return false;
@@ -135,7 +160,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
     return false;
   };
 
-  // Sincronizar alteração de séries/cargas no Firestore e no estado local imediatamente
   const handleUpdateSetsInFirestore = async (
     exerciseId: string,
     sets: SetRecord[],
@@ -157,15 +181,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
       updatedAt: new Date().toISOString(),
     };
 
-    // 1. Atualizar estado React local instantaneamente
     setTodayLogs((prev) => ({
       ...prev,
       [exKeyId]: updatedLog,
       [exName]: updatedLog,
     }));
 
-    // 2. Persistir no Firestore sob a chave do ID e do Nome para garantia total
-    if (user) {
+    if (user && !isGuestMode) {
       try {
         const logRef = doc(db, 'users', user.uid, 'workoutLogs', todayDate);
         await setDoc(
@@ -188,23 +210,74 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
     }
   };
 
-  // Calcular estatísticas do dia para o gráfico
   const totalExerciciosNoDia = treinoAtual?.exercicios.length || 0;
   const concluidosNoDiaCount = treinoAtual?.exercicios.filter(isExerciseDone).length || 0;
 
-  const mockDataTreinos = [
-    { name: 'Exercícios Concluídos', value: concluidosNoDiaCount },
-    { name: 'Pendente no Dia', value: Math.max(totalExerciciosNoDia - concluidosNoDiaCount, 0) },
-  ];
+  let chartTitle = '';
+  let chartData: Array<{ name: string; value: number }> = [];
+
+  if (chartFilter === 'dia') {
+    chartTitle = `📊 Progresso do Treino de Hoje (${concluidosNoDiaCount}/${totalExerciciosNoDia} concluídos)`;
+    chartData = [
+      { name: 'Exercícios Concluídos', value: concluidosNoDiaCount },
+      { name: 'Pendente no Dia', value: Math.max(totalExerciciosNoDia - concluidosNoDiaCount, 0) },
+    ];
+  } else if (chartFilter === 'mes') {
+    chartTitle = '📊 Desempenho Mensal (Treinos Realizados no Mês)';
+    chartData = [
+      { name: 'Treinos Concluídos no Mês', value: 14 },
+      { name: 'Meta Restante do Mês', value: 4 },
+    ];
+  } else {
+    chartTitle = '📊 Desempenho Anual (Frequência em 12 Meses)';
+    chartData = [
+      { name: 'Treinos Realizados no Ano', value: 142 },
+      { name: 'Meta Anual Pendente', value: 38 },
+    ];
+  }
 
   const buttonText = hasCompletedForm ? 'Refazer formulário inicial' : 'Preencher formulário inicial';
 
   return (
     <div className={styles.container}>
+      {/* Aviso de Modo Visitante se ativo */}
+      {isGuestMode && (
+        <div style={{
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          border: '1px solid #3b82f6',
+          borderRadius: '8px',
+          padding: '10px 14px',
+          color: '#60a5fa',
+          fontSize: '0.85rem',
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>ℹ️ <strong>Modo Teste (Visitante):</strong> Os dados não serão salvos no banco.</span>
+          <button
+            onClick={onExitGuestMode}
+            style={{
+              background: '#3b82f6',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 10px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Criar conta para salvar
+          </button>
+        </div>
+      )}
+
       {/* Cabeçalho */}
       <header className={styles.header}>
         <h2>Meu Painel de Treinos</h2>
         <div className={styles.headerRight}>
+          {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
           <button 
             onClick={onOpenOnboarding} 
             className={styles.btnOnboarding}
@@ -213,7 +286,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
             📋 {buttonText}
           </button>
           <button onClick={handleLogout} className={styles.btnLogout}>
-            Sair
+            {isGuestMode ? 'Sair do Modo Teste' : 'Sair'}
           </button>
         </div>
       </header>
@@ -250,14 +323,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
 
           <div className={styles.exerciseListContainer}>
             <p className={styles.exerciseListTitle}>
-              Exercícios recomendados <span style={{ fontWeight: 400, fontSize: '0.85rem', color: '#6b7280' }}>({treinoAtual.focoMuscular})</span>:
+              Exercícios recomendados <span style={{ fontWeight: 400, fontSize: '0.85rem', color: 'var(--text-muted)' }}>({treinoAtual.focoMuscular})</span>:
             </p>
 
             <div className={styles.exerciseGrid}>
               {treinoAtual.exercicios.map((ex, idx) => {
                 const log = getLogForExercise(ex);
                 const isDone = isExerciseDone(ex);
-                const lastWeight = log?.sets?.find((s) => s.weight)?.weight;
+                const completedSets = log?.sets?.filter((s) => s.done) || [];
+                const doneSetsCount = completedSets.length;
+                const totalSeries = ex.series;
+
+                const weightsList = completedSets
+                  .filter((s) => s.weight)
+                  .map((s) => `${s.weight} ${s.unit || 'kg'}`)
+                  .join(', ');
 
                 return (
                   <div
@@ -269,10 +349,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
                       <span className={styles.exerciseRowName}>{ex.nome}</span>
                       <div className={styles.exerciseRowMeta}>
                         <span className={styles.muscleTag}>{ex.grupoMuscular}</span>
-                        <span>• {ex.series} séries x {ex.repeticoes}</span>
-                        {lastWeight && (
-                          <span style={{ color: '#8b5cf6', fontWeight: 600 }}>
-                            • {lastWeight} kg/lbs
+                        <span>
+                          • {doneSetsCount}/{totalSeries} séries concluídas ({ex.repeticoes})
+                        </span>
+                        {weightsList && (
+                          <span className={styles.weightsBadge}>
+                            • Cargas: {weightsList}
                           </span>
                         )}
                       </div>
@@ -280,6 +362,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
 
                     {isDone ? (
                       <span className={styles.statusBadgeDone}>✓ Concluído</span>
+                    ) : doneSetsCount > 0 ? (
+                      <span className={styles.statusBadgePending} style={{ color: '#8b5cf6' }}>
+                        Em andamento ({doneSetsCount}/{totalSeries}) ▶
+                      </span>
                     ) : (
                       <span className={styles.statusBadgePending}>Iniciar ▶</span>
                     )}
@@ -306,14 +392,40 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
         />
       )}
 
-      {/* Dashboard: Gráfico de Progresso */}
+      {/* Dashboard: Gráfico de Progresso com Filtros (Dia, Mês, Ano) */}
       <section className={styles.chartCard}>
-        <h3>📊 Progresso do Treino de Hoje ({concluidosNoDiaCount}/{totalExerciciosNoDia} concluídos)</h3>
+        <div className={styles.chartHeader}>
+          <h3>{chartTitle}</h3>
+          <div className={styles.filterButtonGroup}>
+            <button
+              type="button"
+              className={`${styles.filterBtn} ${chartFilter === 'dia' ? styles.filterBtnActive : ''}`}
+              onClick={() => setChartFilter('dia')}
+            >
+              Dia
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterBtn} ${chartFilter === 'mes' ? styles.filterBtnActive : ''}`}
+              onClick={() => setChartFilter('mes')}
+            >
+              Mês
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterBtn} ${chartFilter === 'ano' ? styles.filterBtnActive : ''}`}
+              onClick={() => setChartFilter('ano')}
+            >
+              Ano
+            </button>
+          </div>
+        </div>
+
         <div className={styles.chartWrapper}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={mockDataTreinos}
+                data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -322,7 +434,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenOnboarding }) => {
                 dataKey="value"
                 label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
               >
-                {mockDataTreinos.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={CORES[index % CORES.length]} />
                 ))}
               </Pie>
