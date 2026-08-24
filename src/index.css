@@ -1,13 +1,89 @@
+:root {
+  --bg-main: #0f172a;
+  --bg-card: #1e1b2e;
+  --bg-card-secondary: #27272a;
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: #3f3f46;
+  
+  /* Cores Padrão (Musculação por Padrão: Laranja + Azul) */
+  --primary-color: #f97316;
+  --primary-gradient: linear-gradient(90deg, #f97316 0%, #0284c7 100%);
+  --accent-purple: #0284c7;
+}
+
+[data-theme='light'] {
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-secondary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-color: #cbd5e1;
+}
+
+/* 🎨 Psicologia das Cores por Estilo de Treino */
+
+/* Opção 1: Musculação (Laranja + Azul) */
+[data-style='musculacao'] {
+  --primary-color: #f97316;
+  --primary-gradient: linear-gradient(90deg, #f97316 0%, #0284c7 100%);
+  --accent-purple: #0284c7;
+}
+
+/* Opção 2: Powerlifting (Vermelho) */
+[data-style='powerlifting'] {
+  --primary-color: #ef4444;
+  --primary-gradient: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+  --accent-purple: #f87171;
+}
+
+/* Opção 3: Luta (Vermelho) */
+[data-style='luta'] {
+  --primary-color: #dc2626;
+  --primary-gradient: linear-gradient(90deg, #dc2626 0%, #991b1b 100%);
+  --accent-purple: #ef4444;
+}
+
+/* Opção 4: Cárdio (Azul) */
+[data-style='cardio'] {
+  --primary-color: #0284c7;
+  --primary-gradient: linear-gradient(90deg, #0284c7 0%, #2563eb 100%);
+  --accent-purple: #38bdf8;
+}
+
+/* Opção 5: Yoga (Verde + Azul) */
+[data-style='yoga'] {
+  --primary-color: #10b981;
+  --primary-gradient: linear-gradient(90deg, #10b981 0%, #0284c7 100%);
+  --accent-purple: #0284c7;
+}
+
+/* Opção 6: Dança (Rosa) */
+[data-style='danca'] {
+  --primary-color: #ec4899;
+  --primary-gradient: linear-gradient(90deg, #ec4899 0%, #db2777 100%);
+  --accent-purple: #f472b6;
+}
+
+/* Opção 7: Ginástica (Roxo / Lilás) */
+[data-style='ginastica'] {
+  --primary-color: #a855f7;
+  --primary-gradient: linear-gradient(90deg, #c084fc 0%, #a855f7 100%);
+  --accent-purple: #c084fc;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

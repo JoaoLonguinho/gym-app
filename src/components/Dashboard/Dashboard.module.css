@@ -1,39 +1,42 @@
 .container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 16px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #1f2937;
+  color: var(--text-primary);
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .headerRight {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .btnOnboarding {
   padding: 8px 14px;
-  background: linear-gradient(90deg, #9333ea 0%, #7e22ce 100%);
+  background: var(--primary-gradient);
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -45,21 +48,22 @@
 
 .btnLogout {
   padding: 8px 14px;
-  background-color: #ef4444;
-  color: #ffffff;
-  border: none;
+  background-color: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .btnLogout:hover {
-  background-color: #dc2626;
+  background-color: #ef4444;
+  color: #ffffff;
 }
 
-/* Tabs dos Dias */
+/* Tabs dos Dias da Semana */
 .tabsContainer {
   display: flex;
   gap: 8px;
@@ -69,33 +73,39 @@
 }
 
 .tabButton {
-  padding: 8px 14px;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  padding: 8px 16px;
+  background-color: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #4b5563;
+  color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
 
+.tabButton:hover {
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
 .tabButtonActive {
-  background-color: #2563eb;
+  background: var(--primary-gradient);
   color: #ffffff;
-  border-color: #2563eb;
+  border-color: var(--primary-color);
   font-weight: 600;
 }
 
 /* Card: Treino Selecionado */
 .todayWorkoutCard {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
   padding: 20px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  background-color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -103,42 +113,46 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .workoutHeaderTitle h3 {
   margin: 0;
   font-size: 1.15rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .workoutTag {
-  color: #2563eb;
+  color: var(--primary-color);
 }
 
 .metaBadge {
   display: inline-block;
-  background-color: #f3e8ff;
-  color: #7e22ce;
-  padding: 3px 8px;
+  background-color: rgba(249, 115, 22, 0.15);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 4px 10px;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  margin-left: 8px;
 }
 
 .exerciseListContainer {
   margin-top: 16px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--border-color);
   padding-top: 16px;
 }
 
 .exerciseListTitle {
   font-weight: 600;
   margin-bottom: 12px;
-  color: #374151;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
-/* Linhas/Abas de Exercícios */
+/* Linhas de Exercícios */
 .exerciseGrid {
   display: flex;
   flex-direction: column;
@@ -150,86 +164,146 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  padding: 14px 16px;
+  background-color: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   cursor: pointer;
+  flex-wrap: wrap;
+  gap: 8px;
   transition: all 0.2s ease;
 }
 
 .exerciseRowCard:hover {
-  background-color: #f3f4f6;
-  border-color: #c084fc;
-  transform: translateX(2px);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
 }
 
 .exerciseRowCardDone {
-  background-color: #f0fdf4;
-  border-color: #86efac;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
 }
 
 .exerciseRowInfo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
 }
 
 .exerciseRowName {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .exerciseRowMeta {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
   align-items: center;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .muscleTag {
-  background-color: #f3e8ff;
-  color: #7e22ce;
-  padding: 2px 6px;
+  background-color: rgba(2, 132, 199, 0.15);
+  color: var(--accent-purple);
+  border: 1px solid var(--accent-purple);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.weightsBadge {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 2px 8px;
   border-radius: 4px;
   font-weight: 600;
   font-size: 0.75rem;
 }
 
 .statusBadgePending {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .statusBadgeDone {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #16a34a;
+  color: #10b981;
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
-/* Card: Gráfico */
+/* Card: Gráfico com Filtros */
 .chartCard {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
   padding: 20px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
-.chartCard h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.15rem;
-  color: #1f2937;
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.chartHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Grupo de Botões de Filtro (Dia, Mês, Ano) */
+.filterButtonGroup {
+  display: flex;
+  gap: 4px;
+  background-color: var(--bg-card-secondary);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.filterBtn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterBtn:hover {
+  color: var(--text-primary);
+}
+
+.filterBtnActive {
+  background: var(--primary-gradient);
+  color: #ffffff;
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .chartWrapper {
   width: 100%;
-  height: 300px;
+  height: 260px;
 }

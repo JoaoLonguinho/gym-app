@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
-import { generateWorkoutRoutine, FocoTreino } from '../../utils/workoutGenerator';
+import { generateWorkoutRoutine, EstiloTreino } from '../../utils/workoutGenerator';
+import { ThemeToggle, Theme } from '../ThemeToggle';
 import styles from './OnboardingForm.module.css';
 
 interface OnboardingFormProps {
   onSkip?: () => void;
   onComplete?: () => void;
+  theme?: Theme;
+  onToggleTheme?: () => void;
 }
 
 const TODOS_DIAS_SEMANA = [
@@ -20,7 +23,86 @@ const TODOS_DIAS_SEMANA = [
   'Domingo'
 ];
 
-export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComplete }) => {
+const SUB_FIELD_CONFIG: Record<EstiloTreino, { label: string; options: Array<{ value: string; label: string }> }> = {
+  musculacao: {
+    label: 'Foco / Prioridade Muscular',
+    options: [
+      { value: 'Equilibrado', label: 'Equilibrado (Corpo Todo)' },
+      { value: 'Superiores', label: 'Prioridade em Superiores (Peito, Costas, Braços)' },
+      { value: 'Inferiores', label: 'Prioridade em Inferiores (Pernas e Glúteos)' },
+    ],
+  },
+  powerlifting: {
+    label: 'Foco no Levantamento Principal',
+    options: [
+      { value: 'Equilibrado', label: 'Equilibrado (Agachamento, Supino e Terra)' },
+      { value: 'Agachamento', label: 'Foco em Agachamento (Squat)' },
+      { value: 'Supino', label: 'Foco em Supino (Bench Press)' },
+      { value: 'Levantamento Terra', label: 'Foco em Levantamento Terra (Deadlift)' },
+    ],
+  },
+  luta: {
+    label: 'Estilo de Luta / Arte Marcial',
+    options: [
+      { value: 'Geral', label: 'Geral (Preparação Física Funcional)' },
+      { value: 'Jiu-Jitsu', label: 'Jiu-Jitsu (BJJ)' },
+      { value: 'Muay Thai', label: 'Muay Thai / Strikers' },
+      { value: 'Boxe', label: 'Boxe' },
+      { value: 'Judô', label: 'Judô' },
+      { value: 'MMA', label: 'MMA (Artes Marciais Mistas)' },
+    ],
+  },
+  cardio: {
+    label: 'Equipamento / Modalidade Principal',
+    options: [
+      { value: 'Variado', label: 'Variado (Estações Múltiplas)' },
+      { value: 'Esteira', label: 'Esteira (Corrida / Caminhada)' },
+      { value: 'Bicicleta Ergométrica', label: 'Bicicleta Ergométrica / Spinning' },
+      { value: 'Elíptico', label: 'Elíptico' },
+      { value: 'Remo', label: 'Remo Seco (Rowing)' },
+      { value: 'Corrida de Rua', label: 'Corrida de Rua' },
+    ],
+  },
+  yoga: {
+    label: 'Estilo de Yoga',
+    options: [
+      { value: 'Geral', label: 'Geral (Flexibilidade e Respiratório)' },
+      { value: 'Hatha Yoga', label: 'Hatha Yoga' },
+      { value: 'Vinyasa Flow', label: 'Vinyasa Flow' },
+      { value: 'Ashtanga', label: 'Ashtanga Yoga' },
+      { value: 'Yin Yoga', label: 'Yin Yoga' },
+    ],
+  },
+  danca: {
+    label: 'Tipo de Dança',
+    options: [
+      { value: 'Geral', label: 'Geral (Dança e Ritmos)' },
+      { value: 'Ritmos Urbanos', label: 'Ritmos Urbanos / Hip Hop' },
+      { value: 'Salsa / Bachata', label: 'Salsa / Bachata / Dança de Salão' },
+      { value: 'FitDance', label: 'FitDance / AeroDança' },
+      { value: 'Ballet Fitness', label: 'Ballet Fitness' },
+      { value: 'Zumba', label: 'Zumba' },
+    ],
+  },
+  ginastica: {
+    label: 'Foco Calistênico / Ginástico',
+    options: [
+      { value: 'Geral', label: 'Geral (Condicionamento Corporal)' },
+      { value: 'Força em Barra / Paralelas', label: 'Força em Barra e Paralelas' },
+      { value: 'Equilíbrio e Solo', label: 'Equilíbrio e Exercícios no Solo' },
+      { value: 'Flexibilidade', label: 'Flexibilidade e Mobilidade Articular' },
+    ],
+  },
+};
+
+export const OnboardingForm: React.FC<OnboardingFormProps> = ({ 
+  onSkip, 
+  onComplete,
+  theme = 'dark',
+  onToggleTheme
+}) => {
+  const [estilo, setEstilo] = useState<EstiloTreino>('musculacao');
+  const [subFoco, setSubFoco] = useState<string>('Equilibrado');
   const [altura, setAltura] = useState('');
   const [peso, setPeso] = useState('');
   const [metaPeso, setMetaPeso] = useState('');
@@ -30,10 +112,23 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
     'Quarta-feira',
     'Sexta-feira'
   ]);
-  const [foco, setFoco] = useState<FocoTreino>('Equilibrado');
   const [lesao, setLesao] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  // Atualizar Psicologia das Cores em tempo real
+  useEffect(() => {
+    document.documentElement.setAttribute('data-style', estilo);
+  }, [estilo]);
+
+  // Atualizar subFoco padrão ao trocar de estilo
+  const handleEstiloChange = (novoEstilo: EstiloTreino) => {
+    setEstilo(novoEstilo);
+    const defaultConfig = SUB_FIELD_CONFIG[novoEstilo];
+    if (defaultConfig && defaultConfig.options.length > 0) {
+      setSubFoco(defaultConfig.options[0].value);
+    }
+  };
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -43,11 +138,12 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
         const docSnap = await getDoc(doc(db, 'users', user.uid));
         if (docSnap.exists()) {
           const data = docSnap.data();
+          if (data.estilo) setEstilo(data.estilo as EstiloTreino);
+          if (data.foco) setSubFoco(data.foco);
           if (data.altura) setAltura(String(data.altura));
           if (data.peso) setPeso(String(data.peso));
           if (data.metaPeso) setMetaPeso(String(data.metaPeso));
           if (data.diasTreino) setDiasTreino(String(data.diasTreino));
-          if (data.foco) setFoco(data.foco as FocoTreino);
           if (data.lesao) setLesao(data.lesao);
           if (Array.isArray(data.diasSemana) && data.diasSemana.length > 0) {
             setDiasSemana(data.diasSemana);
@@ -112,15 +208,16 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
     setError('');
 
     try {
-      const rotinaTreino = generateWorkoutRoutine(count, diasSemana, foco);
+      const rotinaTreino = generateWorkoutRoutine(count, diasSemana, subFoco, estilo);
 
       await setDoc(doc(db, 'users', user.uid), {
+        estilo,
+        foco: subFoco,
         altura: altura ? Number(altura) : null,
         peso: peso ? Number(peso) : null,
         metaPeso: metaPeso ? Number(metaPeso) : null,
         diasTreino: count,
         diasSemana,
-        foco,
         lesao: lesao.trim() || null,
         rotinaTreino,
         isFormCompleted: true,
@@ -141,13 +238,14 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
     const user = auth.currentUser;
     if (user) {
       try {
-        const rotinaPadrao = generateWorkoutRoutine(3, ['Segunda-feira', 'Quarta-feira', 'Sexta-feira'], 'Equilibrado');
+        const rotinaPadrao = generateWorkoutRoutine(3, ['Segunda-feira', 'Quarta-feira', 'Sexta-feira'], subFoco, estilo);
         await setDoc(doc(db, 'users', user.uid), {
+          estilo,
+          foco: subFoco,
           isFormCompleted: true,
           skippedOnboarding: true,
           diasTreino: 3,
           diasSemana: ['Segunda-feira', 'Quarta-feira', 'Sexta-feira'],
-          foco: 'Equilibrado',
           rotinaTreino: rotinaPadrao,
           updatedAt: new Date().toISOString()
         }, { merge: true });
@@ -158,16 +256,19 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
     if (onSkip) onSkip();
   };
 
+  const currentSubConfig = SUB_FIELD_CONFIG[estilo];
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.card}>
         <div className={styles.headerActions}>
+          {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
           <button onClick={handleLogout} className={styles.btnLogout}>
             Sair
           </button>
         </div>
 
-        <h2>Vamos personalizar seu treino! 🎯</h2>
+        <h2>Personalize seu treino</h2>
         <p className={styles.subtitle}>
           Responda a estas perguntas para criarmos a melhor rotina para você.
         </p>
@@ -175,6 +276,37 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
         {error && <p className={styles.subtitle} style={{ color: '#f87171' }}>{error}</p>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {/* Pergunta Principal: Estilo de Treino */}
+          <div className={styles.inputGroup}>
+            <label>Qual seu estilo de treino?</label>
+            <select 
+              value={estilo} 
+              onChange={(e) => handleEstiloChange(e.target.value as EstiloTreino)}
+            >
+              <option value="musculacao">Musculação</option>
+              <option value="powerlifting">Powerlifting</option>
+              <option value="luta">Luta</option>
+              <option value="cardio">Cárdio</option>
+              <option value="yoga">Yoga</option>
+              <option value="danca">Dança</option>
+              <option value="ginastica">Ginástica</option>
+            </select>
+          </div>
+
+          {/* Subcampo Condicional Dinâmico para TODAS as 7 modalidades */}
+          {currentSubConfig && (
+            <div className={styles.inputGroup} style={{ borderLeft: '3px solid var(--primary-color)', paddingLeft: '12px' }}>
+              <label>{currentSubConfig.label}</label>
+              <select value={subFoco} onChange={(e) => setSubFoco(e.target.value)}>
+                {currentSubConfig.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className={styles.inputGroup}>
             <label>Altura (cm)</label>
             <input 
@@ -208,11 +340,11 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
           <div className={styles.inputGroup}>
             <label>Quantos dias pretende treinar durante a semana?</label>
             <select value={diasTreino} onChange={(e) => handleDiasTreinoChange(e.target.value)}>
-              <option value="2">2 dias por semana (1 Superiores / 1 Inferiores)</option>
+              <option value="2">2 dias por semana</option>
               <option value="3">3 dias por semana</option>
-              <option value="4">4 dias por semana (2 Superiores / 2 Inferiores)</option>
+              <option value="4">4 dias por semana</option>
               <option value="5">5 dias por semana</option>
-              <option value="6">6 dias por semana (3 Superiores / 3 Inferiores)</option>
+              <option value="6">6 dias por semana</option>
             </select>
           </div>
 
@@ -236,15 +368,6 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
           </div>
 
           <div className={styles.inputGroup}>
-            <label>Foco / Prioridade Muscular</label>
-            <select value={foco} onChange={(e) => setFoco(e.target.value as FocoTreino)}>
-              <option value="Equilibrado">Equilibrado (Corpo Todo)</option>
-              <option value="Superiores">Prioridade em Superiores (Peito, Costas, Braços)</option>
-              <option value="Inferiores">Prioridade em Inferiores (Pernas e Glúteos)</option>
-            </select>
-          </div>
-
-          <div className={styles.inputGroup}>
             <label>Possui alguma lesão ou limitação? (Opcional)</label>
             <input 
               type="text" 
@@ -255,7 +378,7 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
           </div>
 
           <button type="submit" disabled={saving} className={styles.btnPrimary}>
-            {saving ? 'Salvando...' : 'Salvar e Gerar Treinos 🚀'}
+            {saving ? 'Salvando...' : 'Salvar e Gerar Treinos'}
           </button>
 
           <button 

@@ -5,9 +5,20 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
+import { ThemeToggle, Theme } from '../ThemeToggle';
 import styles from './AuthScreen.module.css';
 
-export const AuthScreen: React.FC = () => {
+interface AuthScreenProps {
+  onGuestLogin?: () => void;
+  theme?: Theme;
+  onToggleTheme?: () => void;
+}
+
+export const AuthScreen: React.FC<AuthScreenProps> = ({ 
+  onGuestLogin,
+  theme = 'dark',
+  onToggleTheme
+}) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,15 +41,30 @@ export const AuthScreen: React.FC = () => {
         }, { merge: true });
       }
     } catch (err: any) {
-      setError('Falha na autenticação. Verifique os dados e tente novamente.');
-      console.error(err);
+      console.error('Erro de autenticação Firebase:', err);
+      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
+        setError('E-mail ou senha incorretos. Se ainda não possui conta, clique em "Cadastre-se" abaixo.');
+      } else if (err?.code === 'auth/email-already-in-use') {
+        setError('Este e-mail já possui cadastro. Clique em "Faça login".');
+      } else if (err?.code === 'auth/weak-password') {
+        setError('A senha deve conter no mínimo 6 caracteres.');
+      } else {
+        setError('Falha na autenticação. Verifique os dados ou utilize "Continuar sem conta".');
+      }
     }
   };
 
   return (
     <div className={styles.wrapper}>
+      {/* Botão de Tema no Topo */}
+      {onToggleTheme && (
+        <div className={styles.topBar}>
+          <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+        </div>
+      )}
+
       <div className={styles.card}>
-        <h2>{isLogin ? 'Entrar no Gym App 🏋️' : 'Criar Conta 🚀'}</h2>
+        <h2>{isLogin ? 'Entrar no Gym App' : 'Criar Conta'}</h2>
         
         {error && <p className={styles.error}>{error}</p>}
 
@@ -73,10 +99,30 @@ export const AuthScreen: React.FC = () => {
         <button 
           type="button" 
           className={styles.btnToggle}
-          onClick={() => setIsLogin(!isLogin)}
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setError('');
+          }}
         >
           {isLogin ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Faça login'}
         </button>
+
+        {/* Opção Continuar sem conta (Modo Teste) */}
+        <div className={styles.guestSection}>
+          <div className={styles.guestButtonWrapper}>
+            <button
+              type="button"
+              className={styles.btnGuest}
+              onClick={onGuestLogin}
+            >
+              Continuar sem conta
+              <span className={styles.helpIcon}>?</span>
+            </button>
+            <span className={styles.tooltipText}>
+              Ao utilizar o site sem conta, você estará apenas efetuando um teste, onde os dados não serão salvos, será gerado um treino de acordo com o músculo que deseja treinar.
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
