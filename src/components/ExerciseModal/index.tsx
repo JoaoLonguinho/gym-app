@@ -5,6 +5,7 @@ import styles from './ExerciseModal.module.css';
 export interface SetRecord {
   setNum: number;
   weight: string;
+  unit?: 'kg' | 'lbs';
   done: boolean;
 }
 
@@ -23,20 +24,27 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
   onClose,
   onUpdateSets,
 }) => {
+  const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
+
   const [sets, setSets] = useState<SetRecord[]>(() => {
     if (initialSets && initialSets.length > 0) {
+      if (initialSets[0]?.unit) {
+        setUnit(initialSets[0].unit);
+      }
       return initialSets;
     }
     return Array.from({ length: exercise.series }, (_, i) => ({
       setNum: i + 1,
       weight: '',
+      unit: 'kg',
       done: initialCompleted,
     }));
   });
 
-  const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
   const [stopwatchSeconds, setStopwatchSeconds] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+
+  const isAllSetsDone = sets.length > 0 && sets.every((s) => s.done);
 
   // Cronômetro crescente de descanso (00:00 -> 00:01 -> ...)
   useEffect(() => {
@@ -51,29 +59,36 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
     };
   }, [isTimerRunning]);
 
+  const handleUnitChange = (newUnit: 'kg' | 'lbs') => {
+    setUnit(newUnit);
+    const updated = sets.map((s) => ({ ...s, unit: newUnit }));
+    setSets(updated);
+    const exerciseId = exercise.id || exercise.nome;
+    const allDone = updated.every((s) => s.done);
+    onUpdateSets(exerciseId, updated, allDone);
+  };
+
   const toggleSetDone = (index: number) => {
     const updated = sets.map((s, i) => {
       if (i === index) {
         const isNowDone = !s.done;
-        // Ao concluir uma série, zerar e iniciar o cronômetro crescente
         if (isNowDone) {
           setStopwatchSeconds(0);
           setIsTimerRunning(true);
         }
-        return { ...s, done: isNowDone };
+        return { ...s, done: isNowDone, unit };
       }
-      return s;
+      return { ...s, unit: s.unit || unit };
     });
 
     setSets(updated);
-    // Notificar pai e salvar no Firestore
     const exerciseId = exercise.id || exercise.nome;
     const allDone = updated.every((s) => s.done);
     onUpdateSets(exerciseId, updated, allDone);
   };
 
   const handleWeightChange = (index: number, val: string) => {
-    const updated = sets.map((s, i) => (i === index ? { ...s, weight: val } : s));
+    const updated = sets.map((s, i) => (i === index ? { ...s, weight: val, unit } : s));
     setSets(updated);
     const exerciseId = exercise.id || exercise.nome;
     const allDone = updated.every((s) => s.done);
@@ -86,12 +101,12 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  const handleFinalize = () => {
+  const handleFinalizeToggle = () => {
     const exerciseId = exercise.id || exercise.nome;
-    // Marcar todas as séries como concluídas caso clique em finalizar exercício
-    const finalizedSets = sets.map((s) => ({ ...s, done: true }));
-    setSets(finalizedSets);
-    onUpdateSets(exerciseId, finalizedSets, true);
+    const targetDoneState = !isAllSetsDone;
+    const updatedSets = sets.map((s) => ({ ...s, done: targetDoneState, unit }));
+    setSets(updatedSets);
+    onUpdateSets(exerciseId, updatedSets, targetDoneState);
     onClose();
   };
 
@@ -115,18 +130,18 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
         {/* Unidade e Séries */}
         <div className={styles.setsContainer}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.85rem', color: '#a1a1aa', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
               Séries e Carga por Série
             </span>
-            <div style={{ display: 'flex', gap: '4px', background: '#27272a', padding: '2px', borderRadius: '6px' }}>
+            <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-card-secondary)', padding: '2px', borderRadius: '6px' }}>
               <button
                 type="button"
-                onClick={() => setUnit('kg')}
+                onClick={() => handleUnitChange('kg')}
                 style={{
                   padding: '2px 8px',
                   borderRadius: '4px',
                   border: 'none',
-                  background: unit === 'kg' ? '#a855f7' : 'transparent',
+                  background: unit === 'kg' ? 'var(--primary-color)' : 'transparent',
                   color: '#fff',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
@@ -137,12 +152,12 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setUnit('lbs')}
+                onClick={() => handleUnitChange('lbs')}
                 style={{
                   padding: '2px 8px',
                   borderRadius: '4px',
                   border: 'none',
-                  background: unit === 'lbs' ? '#a855f7' : 'transparent',
+                  background: unit === 'lbs' ? 'var(--primary-color)' : 'transparent',
                   color: '#fff',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
@@ -210,9 +225,18 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
           </div>
         </div>
 
-        {/* Botão de Finalizar */}
-        <button type="button" className={styles.btnFinalize} onClick={handleFinalize}>
-          Finalizar Exercício 🏆
+        {/* Botão de Alternar Conclusão */}
+        <button
+          type="button"
+          className={styles.btnFinalize}
+          onClick={handleFinalizeToggle}
+          style={{
+            background: isAllSetsDone
+              ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'
+              : 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+          }}
+        >
+          {isAllSetsDone ? '✕ Desmarcar Exercício como Concluído' : 'Finalizar Exercício 🏆'}
         </button>
       </div>
     </div>

@@ -5,12 +5,29 @@ import { auth, db } from './firebase';
 import { AuthScreen } from './components/AuthScreen';
 import { OnboardingForm } from './components/OnboardingForm';
 import { Dashboard } from './components/Dashboard';
+import { Theme } from './components/ThemeToggle';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isGuestMode, setIsGuestMode] = useState<boolean>(false);
   const [isFormCompleted, setIsFormCompleted] = useState<boolean>(false);
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+
+  // Gerenciamento de Tema Claro/Escuro salvo em localStorage
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem('gym_app_theme') as Theme;
+    return saved || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('gym_app_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   useEffect(() => {
     let unsubscribeFirestore: (() => void) | null = null;
@@ -24,6 +41,7 @@ export const App: React.FC = () => {
       }
 
       if (currentUser) {
+        setIsGuestMode(false);
         setLoading(true);
         const userDocRef = doc(db, 'users', currentUser.uid);
         unsubscribeFirestore = onSnapshot(
@@ -63,8 +81,8 @@ export const App: React.FC = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         height: '100vh',
-        backgroundColor: '#0f172a',
-        color: '#ffffff',
+        backgroundColor: 'var(--bg-main)',
+        color: 'var(--text-primary)',
         fontFamily: 'sans-serif'
       }}>
         <p>Carregando aplicação...</p>
@@ -72,15 +90,46 @@ export const App: React.FC = () => {
     );
   }
 
-  // 1. DESLOGADO -> Mostrar Tela de Login / Cadastro
-  if (!user) {
-    return <AuthScreen />;
+  // 1. MODO VISITANTE (Sem Conta)
+  if (isGuestMode) {
+    if (isEditingOnboarding) {
+      return (
+        <OnboardingForm 
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          onSkip={() => setIsEditingOnboarding(false)} 
+          onComplete={() => setIsEditingOnboarding(false)} 
+        />
+      );
+    }
+    return (
+      <Dashboard 
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        isGuestMode={true}
+        onExitGuestMode={() => setIsGuestMode(false)}
+        onOpenOnboarding={() => setIsEditingOnboarding(true)}
+      />
+    );
   }
 
-  // 2. LOGADO (mas não completou o formulário ou solicitou editar) -> Mostrar Formulário
+  // 2. DESLOGADO -> Mostrar Tela de Login / Cadastro
+  if (!user) {
+    return (
+      <AuthScreen 
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onGuestLogin={() => setIsGuestMode(true)} 
+      />
+    );
+  }
+
+  // 3. LOGADO (mas não completou o formulário ou solicitou editar) -> Mostrar Formulário
   if (!isFormCompleted || isEditingOnboarding) {
     return (
       <OnboardingForm 
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onSkip={() => {
           setIsFormCompleted(true);
           setIsEditingOnboarding(false);
@@ -93,8 +142,14 @@ export const App: React.FC = () => {
     );
   }
 
-  // 3. LOGADO E COM FORMULÁRIO COMPLETO -> Mostrar Dashboard
-  return <Dashboard onOpenOnboarding={() => setIsEditingOnboarding(true)} />;
+  // 4. LOGADO E COM FORMULÁRIO COMPLETO -> Mostrar Dashboard
+  return (
+    <Dashboard 
+      theme={theme}
+      onToggleTheme={toggleTheme}
+      onOpenOnboarding={() => setIsEditingOnboarding(true)} 
+    />
+  );
 };
 
 export default App;

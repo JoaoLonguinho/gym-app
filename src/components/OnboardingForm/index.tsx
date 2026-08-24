@@ -3,11 +3,14 @@ import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { generateWorkoutRoutine, FocoTreino } from '../../utils/workoutGenerator';
+import { ThemeToggle, Theme } from '../ThemeToggle';
 import styles from './OnboardingForm.module.css';
 
 interface OnboardingFormProps {
   onSkip?: () => void;
   onComplete?: () => void;
+  theme?: Theme;
+  onToggleTheme?: () => void;
 }
 
 const TODOS_DIAS_SEMANA = [
@@ -20,7 +23,12 @@ const TODOS_DIAS_SEMANA = [
   'Domingo'
 ];
 
-export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComplete }) => {
+export const OnboardingForm: React.FC<OnboardingFormProps> = ({ 
+  onSkip, 
+  onComplete,
+  theme = 'dark',
+  onToggleTheme
+}) => {
   const [altura, setAltura] = useState('');
   const [peso, setPeso] = useState('');
   const [metaPeso, setMetaPeso] = useState('');
@@ -152,7 +160,7 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
           updatedAt: new Date().toISOString()
         }, { merge: true });
       } catch (err) {
-        console.error('Erro ao pular onboarding no Firestore, por gentileza contate o desenvolvedor', err);
+        console.error('Erro ao pular onboarding no Firestore:', err);
       }
     }
     if (onSkip) onSkip();
@@ -162,6 +170,7 @@ export const OnboardingForm: React.FC<OnboardingFormProps> = ({ onSkip, onComple
     <div className={styles.wrapper}>
       <div className={styles.card}>
         <div className={styles.headerActions}>
+          {onToggleTheme && <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />}
           <button onClick={handleLogout} className={styles.btnLogout}>
             Sair
           </button>
